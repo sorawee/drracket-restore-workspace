@@ -19,4 +19,3 @@ jobs:
           version: ${{ matrix.racket-version }}
       - run: |
           raco pkg install --auto --name drracket-restore-workspace
-          raco test -x -p drracket-restore-workspace

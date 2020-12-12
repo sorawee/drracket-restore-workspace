@@ -10,6 +10,14 @@
          racket/unit)
 (provide tool@)
 
+;; data = list of saved ok tabs
+;; offset is either
+;; - #f which means there's no save
+;; - nat which means the index of the active tabs in the saved ok tabs
+;; invariant: offset = #f iff data = '()
+(preferences:set-default data-key '() list?)
+(preferences:set-default offset-key #f (or/c #f exact-nonnegative-integer?))
+
 (define data-key 'drracket-restore-workspace:data)
 (define offset-key 'drracket-restore-workspace:offset)
 (define menu-items '())
@@ -67,7 +75,7 @@
 
         (define the-menu-item
           (new menu-item%
-               [label "Restore tabs in the previous frame"]
+               [label "Restore tabs in the last closed window"]
                [callback (λ (c e) (restore))]
                [parent (get-show-menu)]))
 
@@ -89,15 +97,7 @@
 
           (inner (void) on-close))))
 
-    (define (phase1)
-      ;; data = list of saved ok tabs
-      ;; offset is either
-      ;; - #f which means there's no save
-      ;; - nat which means the index of the active tabs in the saved ok tabs
-      ;; invariant: offset = #f iff data = '()
-      (preferences:set-default data-key '() list?)
-      (preferences:set-default offset-key #f (or/c #f exact-nonnegative-integer?)))
-
-    (define (phase2) (void))
+    (define phase1 void)
+    (define phase2 void)
 
     (drracket:get/extend:extend-unit-frame restore-workspace-mixin)))

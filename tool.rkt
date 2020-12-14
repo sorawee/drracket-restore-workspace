@@ -10,6 +10,10 @@
          racket/unit)
 (provide tool@)
 
+(define data-key 'drracket-restore-workspace:data)
+(define offset-key 'drracket-restore-workspace:offset)
+(define menu-items '())
+
 ;; data = list of saved ok tabs
 ;; offset is either
 ;; - #f which means there's no save
@@ -17,10 +21,6 @@
 ;; invariant: offset = #f iff data = '()
 (preferences:set-default data-key '() list?)
 (preferences:set-default offset-key #f (or/c #f exact-nonnegative-integer?))
-
-(define data-key 'drracket-restore-workspace:data)
-(define offset-key 'drracket-restore-workspace:offset)
-(define menu-items '())
 
 (define (maybe-enable-menu-items)
   (define enabled? (preferences:get offset-key))

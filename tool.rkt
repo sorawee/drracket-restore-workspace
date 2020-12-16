@@ -12,7 +12,6 @@
 
 (define data-key 'drracket-restore-workspace:data)
 (define offset-key 'drracket-restore-workspace:offset)
-(define menu-items '())
 
 ;; data = list of saved ok tabs
 ;; offset is either
@@ -21,15 +20,6 @@
 ;; invariant: offset = #f iff data = '()
 (preferences:set-default data-key '() list?)
 (preferences:set-default offset-key #f (or/c #f exact-nonnegative-integer?))
-
-(define (maybe-enable-menu-items)
-  (define enabled? (preferences:get offset-key))
-  (for ([menu-item (in-list menu-items)])
-    (send menu-item enable enabled?)))
-
-(define (disable-menu-items)
-  (for ([menu-item (in-list menu-items)])
-    (send menu-item enable #f)))
 
 (define (goto frame pos)
   (send (send frame get-definitions-text) set-position pos))
@@ -69,18 +59,15 @@
                    (list-ref (send the-frame get-tabs) offset))
 
              (preferences:set data-key '())
-             (preferences:set offset-key #f)
-             (disable-menu-items)]
+             (preferences:set offset-key #f)]
             [_ (void)]))
 
-        (define the-menu-item
-          (new menu-item%
-               [label "Restore tabs in the last closed window"]
-               [callback (λ (c e) (restore))]
-               [parent (get-show-menu)]))
-
-        (set! menu-items (cons the-menu-item menu-items))
-        (maybe-enable-menu-items)
+        (new menu-item%
+             [label "Restore tabs in the last closed window"]
+             [callback (λ (c e) (restore))]
+             [demand-callback
+              (λ (self) (send self enable (preferences:get offset-key)))]
+             [parent (get-show-menu)])
 
         (define/augment (on-close)
           (define ok-tabs (get-ok-tabs))
@@ -91,10 +78,7 @@
                                                            (get-filename)))
                                         (λ (a b) (equal? (first a) b))))
             (preferences:set data-key ok-tabs)
-            (preferences:set offset-key (or the-index 0))
-            (maybe-enable-menu-items))
-          (set! menu-items (remq the-menu-item menu-items))
-
+            (preferences:set offset-key (or the-index 0)))
           (inner (void) on-close))))
 
     (define phase1 void)

@@ -9,3 +9,4 @@
 (define pkg-authors '(sorawee))
 (define drracket-tool-names (list "Restore workspace"))
 (define drracket-tools (list (list "tool.rkt")))
+(define license '(Apache-2.0 OR MIT))
